@@ -10,3 +10,7 @@ enabled = false
 
 [default.gdb]
 enabled = true
+
+[default.probe]
+usb_vid = "0d28"
+usb_pid = "0204"
