@@ -2,6 +2,8 @@
 #![no_std]
 
 use cortex_m_rt::entry;
+use embedded_hal::blocking::serial;
+use microbit::pac::ppi::chen;
 use rtt_target::rtt_init_print;
 use panic_rtt_target as _;
 
@@ -50,8 +52,16 @@ fn main() -> ! {
         UartePort::new(serial)
     };
 
-    nb::block!(serial.write(b'X')).unwrap();
+   
+   // nb::block!(serial.write(b'X')).unwrap();
+   let msg = b"The quick brown fox jumps over the lazy dog.";
+   for byte in msg
+   {
+    nb::block!(serial.write(*byte)).unwrap();
+   }
     nb::block!(serial.flush()).unwrap();
 
     loop {}
 }
+
+
