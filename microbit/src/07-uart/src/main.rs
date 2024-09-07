@@ -4,8 +4,8 @@
 use cortex_m_rt::entry;
 use embedded_hal::blocking::serial;
 use microbit::pac::ppi::chen;
-use rtt_target::rtt_init_print;
 use panic_rtt_target as _;
+use rtt_target::{rtt_init_print, rprintln};
 
 #[cfg(feature = "v1")]
 use microbit::{
@@ -54,14 +54,19 @@ fn main() -> ! {
 
    
    // nb::block!(serial.write(b'X')).unwrap();
-   let msg = b"The quick brown fox jumps over the lazy dog.";
-   for byte in msg
+   let msg = "The quick brown fox jumps over the lazy dog.";
+   /*
+    for byte in msg
    {
     nb::block!(serial.write(*byte)).unwrap();
    }
-    nb::block!(serial.flush()).unwrap();
+    */
 
-    loop {}
+
+    loop {
+        let byte = nb::block!(serial.read()).unwrap();
+        rprintln!("{}", byte as char);
+    }
 }
 
 
