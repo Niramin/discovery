@@ -6,6 +6,7 @@ use embedded_hal::blocking::serial;
 use microbit::pac::ppi::chen;
 use panic_rtt_target as _;
 use rtt_target::{rtt_init_print, rprintln};
+use heapless::Vec;
 
 #[cfg(feature = "v1")]
 use microbit::{
@@ -62,10 +63,34 @@ fn main() -> ! {
    }
     */
 
-
+   let mut buffer : Vec<u8,32>  = Vec::new();
     loop {
-        let byte = nb::block!(serial.read()).unwrap();
-        rprintln!("{}", byte as char);
+        buffer.clear();
+
+        loop {
+            
+            let byte = nb::block!(serial.read()).unwrap();
+
+            if buffer.push(byte).is_err()
+            {
+                
+                let errMsg = b"error buffer is full\r \n";
+                for errByte in errMsg
+                {
+                    nb::block!(serial.write(*errByte)).unwrap();
+                }
+                break;
+            }
+
+            if byte == 13 {
+                for bufferByte in &buffer{
+                    nb::block!(serial.write(*bufferByte)).unwrap();
+                }
+                break;
+                
+            }
+        }
+        nb::block!(serial.flush()).unwrap();
     }
 }
 
